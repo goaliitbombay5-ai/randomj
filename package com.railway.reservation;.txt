@@ -1,0 +1,256 @@
+package com.railway.reservation;
+
+import java.util.Scanner;
+
+// Interface
+interface Reservable {
+
+    void bookTicket();
+
+    void cancelTicket();
+}
+
+// Parent Class
+class Passenger {
+
+    String name;
+    int age;
+
+    // Constructor
+    Passenger(String name, int age) throws Exception {
+
+        if(name.isEmpty()) {
+            throw new Exception("Passenger name cannot be empty!");
+        }
+
+        if(age <= 0) {
+            throw new Exception("Invalid age!");
+        }
+
+        // this keyword
+        this.name = name;
+        this.age = age;
+    }
+
+    void displayPassenger() {
+
+        System.out.println("Passenger Name : " + name);
+        System.out.println("Passenger Age  : " + age);
+    }
+}
+
+// Child Class
+class Ticket extends Passenger implements Reservable {
+
+    int seatNo;
+
+    // static variable
+    static int availableSeats = 5;
+
+    // final variable
+    final double fare = 500.0;
+
+    // Constructor
+    Ticket(String name, int age, int seatNo) throws Exception {
+
+        // super keyword
+        super(name, age);
+
+        this.seatNo = seatNo;
+    }
+
+    // Method Overriding
+    public void bookTicket() {
+
+        try {
+
+            if(availableSeats <= 0) {
+
+                throw new Exception("Seats are full!");
+            }
+
+            availableSeats--;
+
+            System.out.println("\n===== TICKET BOOKED SUCCESSFULLY =====");
+
+            displayPassenger();
+
+            System.out.println("Seat Number    : " + seatNo);
+            System.out.println("Ticket Fare    : ₹" + fare);
+            System.out.println("Seats Left     : " + availableSeats);
+        }
+
+        catch(Exception e) {
+
+            System.out.println("Booking Failed : " + e.getMessage());
+        }
+    }
+
+    public void cancelTicket() {
+
+        availableSeats++;
+
+        System.out.println("\nTicket Cancelled Successfully!");
+        System.out.println("Seats Available : " + availableSeats);
+    }
+
+    // Display Full Ticket
+    void displayTicket() {
+
+        displayPassenger();
+
+        System.out.println("Seat Number    : " + seatNo);
+        System.out.println("Fare           : ₹" + fare);
+
+        System.out.println("----------------------------");
+    }
+}
+
+// Main Class
+public class railwayreservation {
+
+    public static void main(String args[]) {
+
+        Scanner sc = new Scanner(System.in);
+
+        // Array of Objects
+        Ticket tickets[] = new Ticket[5];
+
+        int count = 0;
+
+        int choice;
+
+        do {
+
+            System.out.println("\n==================================");
+            System.out.println("   RAILWAY RESERVATION SYSTEM");
+            System.out.println("==================================");
+
+            System.out.println("1. Book Ticket");
+            System.out.println("2. Cancel Ticket");
+            System.out.println("3. View All Bookings");
+            System.out.println("4. Exit");
+
+            System.out.print("Enter Your Choice : ");
+            choice = sc.nextInt();
+
+            sc.nextLine();
+
+            switch(choice) {
+
+                case 1:
+
+                    try {
+
+                        if(count >= tickets.length) {
+
+                            System.out.println("\nBooking Limit Reached!");
+                            break;
+                        }
+
+                        System.out.print("Enter Passenger Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print("Enter Passenger Age  : ");
+                        int age = sc.nextInt();
+
+                        System.out.print("Enter Seat Number    : ");
+                        int seatNo = sc.nextInt();
+
+                        // Store object in array
+                        tickets[count] = new Ticket(name, age, seatNo);
+
+                        tickets[count].bookTicket();
+
+                        count++;
+                    }
+
+                    catch(Exception e) {
+
+                        System.out.println("\nError : " + e.getMessage());
+                    }
+
+                    break;
+
+                case 2:
+
+                    if(count == 0) {
+
+                        System.out.println("\nNo Ticket Found!");
+                    }
+
+                    else {
+
+                        System.out.print("Enter Passenger Name to Cancel Ticket : ");
+                        String cancelName = sc.nextLine();
+
+                        boolean found = false;
+
+                        for(int i = 0; i < count; i++) {
+
+                            if(tickets[i] != null &&
+                                tickets[i].name.equalsIgnoreCase(cancelName)) {
+
+                                tickets[i].cancelTicket();
+
+                                // Shift remaining objects
+                                for(int j = i; j < count - 1; j++) {
+
+                                    tickets[j] = tickets[j + 1];
+                                }
+
+                            tickets[count - 1] = null;
+
+                            count--;
+
+                            found = true;
+
+                            System.out.println("Ticket Cancelled for " + cancelName);
+
+                            break;
+                        }
+                    }
+
+                    if(!found) {
+
+                        System.out.println("Passenger Not Found!");
+                    }
+                }
+
+                break;
+
+                case 3:
+
+                    if(count == 0) {
+
+                        System.out.println("\nNo Bookings Available!");
+                    }
+
+                    else {
+
+                        System.out.println("\n===== BOOKING RECORDS =====");
+
+                        for(int i = 0; i < count; i++) {
+
+                            tickets[i].displayTicket();
+                        }
+                    }
+
+                    break;
+
+                case 4:
+
+                    System.out.println("\nThank You For Using Railway Reservation System!");
+
+                    break;
+
+                default:
+
+                    System.out.println("\nInvalid Choice!");
+            }
+
+        } while(choice != 4);
+
+        sc.close();
+    }
+}

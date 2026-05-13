@@ -1,0 +1,292 @@
+package com.food.delivery;
+
+import java.util.Scanner;
+
+// Interface
+interface Deliverable {
+
+    void placeOrder();
+
+    void cancelOrder();
+}
+
+// Abstract Class
+abstract class Customer {
+
+    String customerName;
+    String address;
+
+    // Constructor
+    Customer(String customerName, String address) throws Exception {
+
+        if(customerName.isEmpty()) {
+            throw new Exception("Customer name cannot be empty!");
+        }
+
+        if(address.isEmpty()) {
+            throw new Exception("Address cannot be empty!");
+        }
+
+        // this keyword
+        this.customerName = customerName;
+        this.address = address;
+    }
+
+    // Abstract Method
+    abstract void displayDetails();
+}
+
+// Child Class
+class Order extends Customer implements Deliverable {
+
+    String foodItem;
+    int quantity;
+
+    // static variable
+    static int availableItems = 10;
+
+    // final variable
+    final int deliveryCharge = 50;
+
+    // Constructor
+    Order(String customerName,
+          String address,
+          String foodItem,
+          int quantity) throws Exception {
+
+        // super keyword
+        super(customerName, address);
+
+        this.foodItem = foodItem;
+        this.quantity = quantity;
+    }
+
+    // Abstract Method Implementation
+    void displayDetails() {
+
+        System.out.println("Customer Name : " + customerName);
+        System.out.println("Address       : " + address);
+        System.out.println("Food Item     : " + foodItem);
+        System.out.println("Quantity      : " + quantity);
+    }
+
+    // Interface Method
+    public void placeOrder() {
+
+        try {
+
+            if(quantity <= 0) {
+
+                throw new Exception("Invalid Quantity!");
+            }
+
+            if(availableItems <= 0) {
+
+                throw new Exception("Food Item Out of Stock!");
+            }
+
+            availableItems--;
+
+            System.out.println("\n===== ORDER PLACED SUCCESSFULLY =====");
+
+            displayDetails();
+
+            int foodPrice = 200;
+
+            int totalBill =
+            (foodPrice * quantity) + deliveryCharge;
+
+            System.out.println("Delivery Charge : ₹" + deliveryCharge);
+            System.out.println("Total Bill      : ₹" + totalBill);
+            System.out.println("Items Left      : " + availableItems);
+
+            System.out.println("----------------------------------");
+        }
+
+        catch(Exception e) {
+
+            System.out.println("Order Failed : " + e.getMessage());
+        }
+    }
+
+    // Interface Method
+    public void cancelOrder() {
+
+        availableItems++;
+
+        System.out.println("\nOrder Cancelled Successfully!");
+        System.out.println("Available Items : " + availableItems);
+    }
+
+    // Extra Display Method
+    void displayOrder() {
+
+        displayDetails();
+
+        int foodPrice = 200;
+
+        int totalBill =
+        (foodPrice * quantity) + deliveryCharge;
+
+        System.out.println("Total Bill : ₹" + totalBill);
+
+        System.out.println("----------------------------------");
+    }
+}
+
+// Main Class
+public class FoodDeliverySystem {
+
+    public static void main(String args[]) {
+
+        Scanner sc = new Scanner(System.in);
+
+        // Array of Objects
+        Order orders[] = new Order[5];
+
+        int count = 0;
+
+        int choice;
+
+        do {
+
+            System.out.println("\n=================================");
+            System.out.println("       FOOD DELIVERY SYSTEM");
+            System.out.println("=================================");
+
+            System.out.println("1. Place Order");
+            System.out.println("2. Cancel Order");
+            System.out.println("3. View Orders");
+            System.out.println("4. Exit");
+
+            System.out.print("Enter Your Choice : ");
+            choice = sc.nextInt();
+
+            sc.nextLine();
+
+            switch(choice) {
+
+                case 1:
+
+                    try {
+
+                        if(count >= orders.length) {
+
+                            System.out.println("\nOrder Limit Reached!");
+                            break;
+                        }
+
+                        System.out.print("Enter Customer Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print("Enter Address       : ");
+                        String address = sc.nextLine();
+
+                        System.out.print("Enter Food Item     : ");
+                        String foodItem = sc.nextLine();
+
+                        System.out.print("Enter Quantity      : ");
+                        int quantity = sc.nextInt();
+
+                        // Store object in array
+                        orders[count] =
+                        new Order(name,
+                                  address,
+                                  foodItem,
+                                  quantity);
+
+                        orders[count].placeOrder();
+
+                        count++;
+                    }
+
+                    catch(Exception e) {
+
+                        System.out.println("\nError : " + e.getMessage());
+                    }
+
+                    break;
+
+                case 2:
+
+                    if(count == 0) {
+
+                        System.out.println("\nNo Orders Found!");
+                    }
+
+                    else {
+
+                        System.out.print("Enter Customer Name to Cancel Order : ");
+
+                        String cancelName = sc.nextLine();
+
+                        boolean found = false;
+
+                        for(int i = 0; i < count; i++) {
+
+                            if(orders[i] != null &&
+                               orders[i].customerName.equalsIgnoreCase(cancelName)) {
+
+                                orders[i].cancelOrder();
+
+                                // Shift array elements
+                                for(int j = i; j < count - 1; j++) {
+
+                                    orders[j] = orders[j + 1];
+                                }
+
+                                orders[count - 1] = null;
+
+                                count--;
+
+                                found = true;
+
+                                System.out.println("Order Removed!");
+
+                                break;
+                            }
+                        }
+
+                        if(!found) {
+
+                            System.out.println("Customer Order Not Found!");
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    if(count == 0) {
+
+                        System.out.println("\nNo Orders Available!");
+                    }
+
+                    else {
+
+                        System.out.println("\n===== ORDER RECORDS =====");
+
+                        for(int i = 0; i < count; i++) {
+
+                            orders[i].displayOrder();
+                        }
+                    }
+
+                    break;
+
+                case 4:
+
+                    System.out.println("\nThank You!");
+
+                    break;
+
+                default:
+
+                    System.out.println("\nInvalid Choice!");
+            }
+
+        } while(choice != 4);
+
+        sc.close();
+    }
+}

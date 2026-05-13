@@ -1,0 +1,291 @@
+package com.library.management;
+
+import java.util.Scanner;
+
+// Interface
+interface Manageable {
+
+    void issueBook();
+
+    void returnBook();
+}
+
+// Abstract Class
+abstract class Student {
+
+    String studentName;
+    int studentId;
+
+    // Constructor
+    Student(String studentName, int studentId) throws Exception {
+
+        if(studentName.isEmpty()) {
+            throw new Exception("Student name cannot be empty!");
+        }
+
+        if(studentId <= 0) {
+            throw new Exception("Invalid Student ID!");
+        }
+
+        // this keyword
+        this.studentName = studentName;
+        this.studentId = studentId;
+    }
+
+    // Abstract Method
+    abstract void displayDetails();
+}
+
+// Child Class
+class Book extends Student implements Manageable {
+
+    String bookName;
+
+    // static variable
+    static int availableBooks = 5;
+
+    // final variable
+    final int finePerDay = 10;
+
+    // Constructor
+    Book(String studentName, int studentId, String bookName)
+    throws Exception {
+
+        // super keyword
+        super(studentName, studentId);
+
+        this.bookName = bookName;
+    }
+
+    // Abstract Method Implementation
+    void displayDetails() {
+
+        System.out.println("Student Name : " + studentName);
+        System.out.println("Student ID   : " + studentId);
+        System.out.println("Book Name    : " + bookName);
+    }
+
+    // Interface Method
+    public void issueBook() {
+
+        try {
+
+            if(availableBooks <= 0) {
+
+                throw new Exception("Books are not available!");
+            }
+
+            availableBooks--;
+
+            System.out.println("\n===== BOOK ISSUED SUCCESSFULLY =====");
+
+            displayDetails();
+
+            System.out.println("Available Books : " + availableBooks);
+
+            System.out.println("--------------------------------");
+        }
+
+        catch(Exception e) {
+
+            System.out.println("Issue Failed : " + e.getMessage());
+        }
+    }
+
+    // Interface Method
+    public void returnBook() {
+
+        availableBooks++;
+
+        System.out.println("\nBook Returned Successfully!");
+        System.out.println("Available Books : " + availableBooks);
+    }
+
+    // Fine Calculation
+    void calculateFine(int days) {
+
+        try {
+
+            if(days < 0) {
+
+                throw new Exception("Invalid Fine Days!");
+            }
+
+            int fine = days * finePerDay;
+
+            System.out.println("Fine Amount : ₹" + fine);
+        }
+
+        catch(Exception e) {
+
+            System.out.println("Fine Error : " + e.getMessage());
+        }
+    }
+
+    // Extra Display Method
+    void displayRecord() {
+
+        displayDetails();
+
+        System.out.println("--------------------------------");
+    }
+}
+
+// Main Class
+public class LibraryManagementSystem {
+
+    public static void main(String args[]) {
+
+        Scanner sc = new Scanner(System.in);
+
+        // Array of Objects
+        Book books[] = new Book[5];
+
+        int count = 0;
+
+        int choice;
+
+        do {
+
+            System.out.println("\n=================================");
+            System.out.println("     LIBRARY MANAGEMENT");
+            System.out.println("=================================");
+
+            System.out.println("1. Issue Book");
+            System.out.println("2. Return Book");
+            System.out.println("3. View Records");
+            System.out.println("4. Exit");
+
+            System.out.print("Enter Your Choice : ");
+            choice = sc.nextInt();
+
+            sc.nextLine();
+
+            switch(choice) {
+
+                case 1:
+
+                    try {
+
+                        if(count >= books.length) {
+
+                            System.out.println("\nLibrary Limit Reached!");
+                            break;
+                        }
+
+                        System.out.print("Enter Student Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print("Enter Student ID   : ");
+                        int id = sc.nextInt();
+
+                        sc.nextLine();
+
+                        System.out.print("Enter Book Name    : ");
+                        String bookName = sc.nextLine();
+
+                        // Store object in array
+                        books[count] =
+                        new Book(name, id, bookName);
+
+                        books[count].issueBook();
+
+                        count++;
+                    }
+
+                    catch(Exception e) {
+
+                        System.out.println("\nError : " + e.getMessage());
+                    }
+
+                    break;
+
+                case 2:
+
+                    if(count == 0) {
+
+                        System.out.println("\nNo Records Found!");
+                    }
+
+                    else {
+
+                        System.out.print("Enter Student Name to Return Book : ");
+
+                        String returnName = sc.nextLine();
+
+                        boolean found = false;
+
+                        for(int i = 0; i < count; i++) {
+
+                            if(books[i] != null &&
+                               books[i].studentName.equalsIgnoreCase(returnName)) {
+
+                                books[i].returnBook();
+
+                                System.out.print("Enter Late Days : ");
+
+                                int days = sc.nextInt();
+
+                                books[i].calculateFine(days);
+
+                                // Shift array elements
+                                for(int j = i; j < count - 1; j++) {
+
+                                    books[j] = books[j + 1];
+                                }
+
+                                books[count - 1] = null;
+
+                                count--;
+
+                                found = true;
+
+                                System.out.println("Record Removed!");
+
+                                break;
+                            }
+                        }
+
+                        if(!found) {
+
+                            System.out.println("Student Record Not Found!");
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    if(count == 0) {
+
+                        System.out.println("\nNo Book Records Found!");
+                    }
+
+                    else {
+
+                        System.out.println("\n===== LIBRARY RECORDS =====");
+
+                        for(int i = 0; i < count; i++) {
+
+                            books[i].displayRecord();
+                        }
+                    }
+
+                    break;
+
+                case 4:
+
+                    System.out.println("\nThank You!");
+
+                    break;
+
+                default:
+
+                    System.out.println("\nInvalid Choice!");
+            }
+
+        } while(choice != 4);
+
+        sc.close();
+    }
+}
